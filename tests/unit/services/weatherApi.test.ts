@@ -8,10 +8,10 @@ describe('weatherApi', () => {
       expect(typeof fetchWeatherByLocation).toBe('function')
     })
 
-    it('throws error when API key is not configured', async () => {
-      // API key check - will be fully implemented in Phase 2
-      // For now, just verify the function exists
+    it('is defined as a function', () => {
+      // API key check will be fully implemented in Phase 2
       expect(fetchWeatherByLocation).toBeDefined()
+      expect(typeof fetchWeatherByLocation).toBe('function')
     })
   })
 })

@@ -32,7 +32,9 @@ export function useWeather() {
    */
   async function loadWeather(location: string): Promise<void> {
     // TODO: Implement in Phase 2
-    console.log(`[useWeather] Loading weather for: ${location}`)
+    if (import.meta.env.DEV) {
+      console.debug(`[useWeather] Loading weather for: ${location}`)
+    }
     isLoading.value = true
     error.value = null
     
@@ -47,7 +49,9 @@ export function useWeather() {
    */
   async function searchLocation(query: string): Promise<void> {
     // TODO: Implement in Phase 3
-    console.log(`[useWeather] Searching location: ${query}`)
+    if (import.meta.env.DEV) {
+      console.debug(`[useWeather] Searching location: ${query}`)
+    }
   }
 
   /**
@@ -56,7 +60,9 @@ export function useWeather() {
   function toggleTemperatureUnit(): void {
     // TODO: Implement in Phase 6
     temperatureUnit.value = temperatureUnit.value === 'F' ? 'C' : 'F'
-    console.log(`[useWeather] Temperature unit toggled to: ${temperatureUnit.value}`)
+    if (import.meta.env.DEV) {
+      console.debug(`[useWeather] Temperature unit toggled to: ${temperatureUnit.value}`)
+    }
   }
 
   return {

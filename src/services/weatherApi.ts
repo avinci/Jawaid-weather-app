@@ -17,8 +17,10 @@ export async function fetchWeatherByLocation(query: string): Promise<any> {
     throw new Error('Weather API key is not configured')
   }
   
-  console.log(`[weatherApi] Fetching weather for: ${query}`)
-  console.log(`[weatherApi] Using API base URL: ${API_BASE_URL}`)
+  if (import.meta.env.DEV) {
+    console.debug(`[weatherApi] Fetching weather for: ${query}`)
+    console.debug(`[weatherApi] Using API base URL: ${API_BASE_URL}`)
+  }
   
   // Skeleton - will be implemented in Phase 2
   return null
