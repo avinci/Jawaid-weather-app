@@ -5,9 +5,11 @@
 .env
 *.log
 
-# Node.js (if applicable)
+# Node.js
 node_modules/
 dist/
+.vite/
+coverage/
 
 # Python (if applicable)
 __pycache__/
