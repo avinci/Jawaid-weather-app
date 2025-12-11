@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+
+# Environment
+.env
+*.log
+
+# Node.js (if applicable)
+node_modules/
+dist/
+
+# Python (if applicable)
+__pycache__/
+.venv/
+*.pyc
+
+# Rust (if applicable)
+target/
+Cargo.lock
+
+# Go (if applicable)
+bin/
+*.exe
