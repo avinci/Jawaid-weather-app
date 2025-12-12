@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import type { DailyForecast } from '../services/weatherApi'
+import { formatDate } from '../utils/formatters'
 
 defineProps<{
   forecasts: DailyForecast[]
 }>()
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
-  })
-}
 </script>
 
 <template>
