@@ -1,5 +1,12 @@
 <script setup lang="ts">
-// Base application component
+import { useWeather } from './composables/useWeather'
+import LoadingSpinner from './components/LoadingSpinner.vue'
+import ErrorMessage from './components/ErrorMessage.vue'
+import CurrentWeather from './components/CurrentWeather.vue'
+import SevenDayForecast from './components/SevenDayForecast.vue'
+import HourlyForecast from './components/HourlyForecast.vue'
+
+const { weatherData, isLoading, error, clearError } = useWeather()
 </script>
 
 <template>
@@ -10,10 +17,31 @@
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-      <div class="bg-white rounded-lg shadow p-6">
-        <p class="text-gray-600">Weather app coming soon...</p>
-      </div>
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <!-- Error Message -->
+      <ErrorMessage 
+        v-if="error"
+        :message="error"
+        @dismiss="clearError"
+      />
+
+      <!-- Loading State -->
+      <LoadingSpinner 
+        v-if="isLoading"
+        message="Loading weather data..."
+      />
+
+      <!-- Weather Content -->
+      <template v-else-if="weatherData">
+        <!-- Current Weather -->
+        <CurrentWeather :weather="weatherData.current" />
+
+        <!-- 7-Day Forecast -->
+        <SevenDayForecast :forecasts="weatherData.daily" />
+
+        <!-- 24-Hour Forecast -->
+        <HourlyForecast :forecasts="weatherData.hourly" />
+      </template>
     </main>
   </div>
 </template>

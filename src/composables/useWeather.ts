@@ -3,24 +3,27 @@
  * Manages weather data state and operations
  */
 
-import { ref, type Ref } from 'vue'
+import { ref, onMounted, type Ref } from 'vue'
+import { fetchWeatherByLocation, type WeatherData } from '../services/weatherApi'
 
 export type TemperatureUnit = 'F' | 'C'
 
 export interface WeatherState {
-  weatherData: any | null
+  weatherData: WeatherData | null
   isLoading: boolean
   error: string | null
   temperatureUnit: TemperatureUnit
   currentLocation: string
 }
 
+const DEFAULT_LOCATION = 'San Francisco'
+
 /**
  * Composable for managing weather data and state
  * @returns Weather state and operations
  */
 export function useWeather() {
-  const weatherData: Ref<any | null> = ref(null)
+  const weatherData: Ref<WeatherData | null> = ref(null)
   const isLoading: Ref<boolean> = ref(false)
   const error: Ref<string | null> = ref(null)
   const temperatureUnit: Ref<TemperatureUnit> = ref('F')
@@ -31,16 +34,31 @@ export function useWeather() {
    * @param location - Location query string
    */
   async function loadWeather(location: string): Promise<void> {
-    // TODO: Implement in Phase 2
     if (import.meta.env.DEV) {
       console.debug(`[useWeather] Loading weather for: ${location}`)
     }
+    
     isLoading.value = true
     error.value = null
     
-    // Skeleton - will be implemented in Phase 2
-    
-    isLoading.value = false
+    try {
+      const data = await fetchWeatherByLocation(location)
+      weatherData.value = data
+      currentLocation.value = data.current.location
+      
+      if (import.meta.env.DEV) {
+        console.debug(`[useWeather] Weather loaded successfully for: ${data.current.location}`)
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load weather data'
+      error.value = errorMessage
+      
+      if (import.meta.env.DEV) {
+        console.error(`[useWeather] Error loading weather:`, err)
+      }
+    } finally {
+      isLoading.value = false
+    }
   }
 
   /**
@@ -52,6 +70,7 @@ export function useWeather() {
     if (import.meta.env.DEV) {
       console.debug(`[useWeather] Searching location: ${query}`)
     }
+    await loadWeather(query)
   }
 
   /**
@@ -65,6 +84,21 @@ export function useWeather() {
     }
   }
 
+  /**
+   * Clear current error message
+   */
+  function clearError(): void {
+    error.value = null
+  }
+
+  // Auto-load San Francisco weather on component mount
+  onMounted(() => {
+    if (import.meta.env.DEV) {
+      console.debug(`[useWeather] Auto-loading default location: ${DEFAULT_LOCATION}`)
+    }
+    loadWeather(DEFAULT_LOCATION)
+  })
+
   return {
     // State
     weatherData,
@@ -77,5 +111,6 @@ export function useWeather() {
     loadWeather,
     searchLocation,
     toggleTemperatureUnit,
+    clearError,
   }
 }
