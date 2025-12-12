@@ -4,6 +4,7 @@
  */
 
 import { logger } from '../utils/logger'
+import { formatTime } from '../utils/formatters'
 
 const API_BASE_URL = 'https://api.weatherapi.com/v1'
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
@@ -151,10 +152,9 @@ function parseWeatherData(data: any): WeatherData {
     .filter((hour: any) => new Date(hour.time).getTime() >= currentTime)
     .slice(0, 24)
     .map((hour: any) => {
-      const time = new Date(hour.time)
       return {
         time: hour.time,
-        timeDisplay: time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        timeDisplay: formatTime(hour.time),
         temperature: hour.temp_f,
         condition: hour.condition.text,
         conditionIcon: `https:${hour.condition.icon}`,
