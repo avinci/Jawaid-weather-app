@@ -96,7 +96,6 @@ export function useWeather() {
    * Toggle between Fahrenheit and Celsius
    */
   function toggleTemperatureUnit(): void {
-    // TODO: Implement in Phase 6
     temperatureUnit.value = temperatureUnit.value === 'F' ? 'C' : 'F'
     logger.debug(`[useWeather] Temperature unit toggled to: ${temperatureUnit.value}`)
   }

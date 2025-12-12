@@ -8,7 +8,8 @@ describe('HourlyForecast', () => {
     {
       time: '2025-12-11 15:00',
       timeDisplay: '3:00 PM',
-      temperature: 65,
+      temperatureF: 65,
+      temperatureC: 18,
       condition: 'Partly cloudy',
       conditionIcon: 'https://example.com/icon1.png',
       precipitationChance: 15
@@ -16,7 +17,8 @@ describe('HourlyForecast', () => {
     {
       time: '2025-12-11 16:00',
       timeDisplay: '4:00 PM',
-      temperature: 66,
+      temperatureF: 66,
+      temperatureC: 19,
       condition: 'Sunny',
       conditionIcon: 'https://example.com/icon2.png',
       precipitationChance: 5
@@ -24,7 +26,8 @@ describe('HourlyForecast', () => {
     {
       time: '2025-12-11 17:00',
       timeDisplay: '5:00 PM',
-      temperature: 64,
+      temperatureF: 64,
+      temperatureC: 18,
       condition: 'Clear',
       conditionIcon: 'https://example.com/icon3.png',
       precipitationChance: 0
@@ -33,7 +36,10 @@ describe('HourlyForecast', () => {
 
   it('renders component title', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('24-Hour Forecast')
@@ -41,7 +47,10 @@ describe('HourlyForecast', () => {
 
   it('renders correct number of hour cards', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     const cards = wrapper.findAll('.bg-gray-50')
@@ -50,7 +59,10 @@ describe('HourlyForecast', () => {
 
   it('displays time for each hour', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('3:00 PM')
@@ -58,9 +70,12 @@ describe('HourlyForecast', () => {
     expect(wrapper.text()).toContain('5:00 PM')
   })
 
-  it('displays temperature for each hour', () => {
+  it('displays temperature for each hour in Fahrenheit', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('65°')
@@ -68,9 +83,24 @@ describe('HourlyForecast', () => {
     expect(wrapper.text()).toContain('64°')
   })
 
+  it('displays temperature for each hour in Celsius', () => {
+    const wrapper = mount(HourlyForecast, {
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'C'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('18°')
+    expect(wrapper.text()).toContain('19°')
+  })
+
   it('displays weather conditions', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('Partly cloudy')
@@ -80,7 +110,10 @@ describe('HourlyForecast', () => {
 
   it('displays precipitation chance', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('15%')
@@ -90,7 +123,10 @@ describe('HourlyForecast', () => {
 
   it('renders weather icons with correct src and alt', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     const images = wrapper.findAll('img')
@@ -102,7 +138,10 @@ describe('HourlyForecast', () => {
 
   it('displays scroll hint message', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('Scroll horizontally to view all hours')
@@ -110,7 +149,10 @@ describe('HourlyForecast', () => {
 
   it('has horizontal scrollable container', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     const scrollContainer = wrapper.find('.overflow-x-auto')
@@ -119,7 +161,10 @@ describe('HourlyForecast', () => {
 
   it('applies scroll-snap styling', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     const cards = wrapper.findAll('.bg-gray-50')
@@ -130,7 +175,10 @@ describe('HourlyForecast', () => {
 
   it('handles empty forecast array', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: [] }
+      props: { 
+        forecasts: [],
+        temperatureUnit: 'F'
+      }
     })
     
     const cards = wrapper.findAll('.bg-gray-50')
@@ -140,11 +188,15 @@ describe('HourlyForecast', () => {
   it('rounds temperature values to whole numbers', () => {
     const forecastsWithDecimals: HourlyForecastType[] = [{
       ...mockForecasts[0],
-      temperature: 65.7
+      temperatureF: 65.7,
+      temperatureC: 18.7
     }]
     
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: forecastsWithDecimals }
+      props: { 
+        forecasts: forecastsWithDecimals,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('66°')
@@ -152,7 +204,10 @@ describe('HourlyForecast', () => {
 
   it('cards have fixed width for consistent scrolling', () => {
     const wrapper = mount(HourlyForecast, {
-      props: { forecasts: mockForecasts }
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
     })
     
     const cards = wrapper.findAll('.bg-gray-50')
@@ -160,5 +215,20 @@ describe('HourlyForecast', () => {
       expect(card.classes()).toContain('w-24')
       expect(card.classes()).toContain('flex-shrink-0')
     })
+  })
+
+  it('reactively updates when temperature unit changes', async () => {
+    const wrapper = mount(HourlyForecast, {
+      props: { 
+        forecasts: mockForecasts,
+        temperatureUnit: 'F'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('65°')
+    
+    await wrapper.setProps({ temperatureUnit: 'C' })
+    
+    expect(wrapper.text()).toContain('18°')
   })
 })

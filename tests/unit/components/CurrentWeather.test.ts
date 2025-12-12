@@ -6,8 +6,10 @@ import type { CurrentWeather as CurrentWeatherType } from '../../../src/services
 describe('CurrentWeather', () => {
   const mockWeather: CurrentWeatherType = {
     location: 'San Francisco, California',
-    temperature: 65,
-    feelsLike: 63,
+    temperatureF: 65,
+    temperatureC: 18,
+    feelsLikeF: 63,
+    feelsLikeC: 17,
     condition: 'Partly cloudy',
     conditionIcon: 'https://example.com/icon.png',
     humidity: 72,
@@ -18,31 +20,65 @@ describe('CurrentWeather', () => {
 
   it('renders location name', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('San Francisco, California')
   })
 
-  it('displays current temperature', () => {
+  it('displays current temperature in Fahrenheit', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('65°F')
   })
 
-  it('displays feels-like temperature', () => {
+  it('displays current temperature in Celsius', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'C'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('18°C')
+  })
+
+  it('displays feels-like temperature in Fahrenheit', () => {
+    const wrapper = mount(CurrentWeather, {
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('Feels like 63°F')
   })
 
+  it('displays feels-like temperature in Celsius', () => {
+    const wrapper = mount(CurrentWeather, {
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'C'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('Feels like 17°C')
+  })
+
   it('displays weather condition', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('Partly cloudy')
@@ -50,7 +86,10 @@ describe('CurrentWeather', () => {
 
   it('displays humidity percentage', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('72%')
@@ -59,7 +98,10 @@ describe('CurrentWeather', () => {
 
   it('displays wind speed and direction', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('10 mph')
@@ -68,7 +110,10 @@ describe('CurrentWeather', () => {
 
   it('renders weather icon with correct src and alt', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     const img = wrapper.find('img')
@@ -79,7 +124,10 @@ describe('CurrentWeather', () => {
 
   it('displays last updated timestamp', () => {
     const wrapper = mount(CurrentWeather, {
-      props: { weather: mockWeather }
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('Last updated:')
@@ -88,15 +136,36 @@ describe('CurrentWeather', () => {
   it('rounds temperature values to whole numbers', () => {
     const weatherWithDecimals: CurrentWeatherType = {
       ...mockWeather,
-      temperature: 65.7,
-      feelsLike: 63.4
+      temperatureF: 65.7,
+      feelsLikeF: 63.4,
+      temperatureC: 18.7,
+      feelsLikeC: 17.4
     }
     
     const wrapper = mount(CurrentWeather, {
-      props: { weather: weatherWithDecimals }
+      props: { 
+        weather: weatherWithDecimals,
+        temperatureUnit: 'F'
+      }
     })
     
     expect(wrapper.text()).toContain('66°F') // Rounded up
     expect(wrapper.text()).toContain('Feels like 63°F') // Rounded down
+  })
+
+  it('reactively updates when temperature unit changes', async () => {
+    const wrapper = mount(CurrentWeather, {
+      props: { 
+        weather: mockWeather,
+        temperatureUnit: 'F'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('65°F')
+    
+    await wrapper.setProps({ temperatureUnit: 'C' })
+    
+    expect(wrapper.text()).toContain('18°C')
+    expect(wrapper.text()).not.toContain('65°F')
   })
 })

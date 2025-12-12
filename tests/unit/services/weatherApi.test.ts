@@ -11,7 +11,9 @@ describe('weatherApi', () => {
       },
       current: {
         temp_f: 65,
+        temp_c: 18,
         feelslike_f: 63,
+        feelslike_c: 17,
         condition: {
           text: 'Partly cloudy',
           icon: '//cdn.weatherapi.com/weather/64x64/day/116.png'
@@ -28,6 +30,8 @@ describe('weatherApi', () => {
             day: {
               maxtemp_f: 68,
               mintemp_f: 55,
+              maxtemp_c: 20,
+              mintemp_c: 13,
               condition: {
                 text: 'Partly cloudy',
                 icon: '//cdn.weatherapi.com/weather/64x64/day/116.png'
@@ -39,6 +43,7 @@ describe('weatherApi', () => {
               {
                 time: '2025-12-11 14:00',
                 temp_f: 64,
+                temp_c: 18,
                 condition: {
                   text: 'Partly cloudy',
                   icon: '//cdn.weatherapi.com/weather/64x64/day/116.png'
@@ -48,6 +53,7 @@ describe('weatherApi', () => {
               {
                 time: '2025-12-11 15:00',
                 temp_f: 65,
+                temp_c: 18,
                 condition: {
                   text: 'Partly cloudy',
                   icon: '//cdn.weatherapi.com/weather/64x64/day/116.png'
@@ -57,6 +63,7 @@ describe('weatherApi', () => {
               {
                 time: '2025-12-11 16:00',
                 temp_f: 66,
+                temp_c: 19,
                 condition: {
                   text: 'Partly cloudy',
                   icon: '//cdn.weatherapi.com/weather/64x64/day/116.png'
@@ -96,7 +103,8 @@ describe('weatherApi', () => {
       expect(result).toBeDefined()
       expect(result.current).toBeDefined()
       expect(result.current.location).toBe('San Francisco, California')
-      expect(result.current.temperature).toBe(65)
+      expect(result.current.temperatureF).toBe(65)
+      expect(result.current.temperatureC).toBe(18)
       expect(result.current.condition).toBe('Partly cloudy')
       expect(result.daily).toBeInstanceOf(Array)
       expect(result.hourly).toBeInstanceOf(Array)
@@ -177,8 +185,10 @@ describe('weatherApi', () => {
       expect(result.daily).toHaveLength(1)
       expect(result.daily[0].date).toBe('2025-12-11')
       expect(result.daily[0].dayOfWeek).toBeDefined()
-      expect(result.daily[0].highTemp).toBe(68)
-      expect(result.daily[0].lowTemp).toBe(55)
+      expect(result.daily[0].highTempF).toBe(68)
+      expect(result.daily[0].lowTempF).toBe(55)
+      expect(result.daily[0].highTempC).toBe(20)
+      expect(result.daily[0].lowTempC).toBe(13)
       expect(result.daily[0].precipitationChance).toBe(20)
     })
 

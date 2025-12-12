@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { CurrentWeather } from '../services/weatherApi'
+import type { TemperatureUnit } from '../composables/useWeather'
 
 defineProps<{
   weather: CurrentWeather
+  temperatureUnit: TemperatureUnit
 }>()
 
 function formatTime(isoString: string): string {
@@ -21,6 +23,14 @@ function formatDate(isoString: string): string {
     day: 'numeric',
     year: 'numeric'
   })
+}
+
+function getTemperature(weather: CurrentWeather, unit: TemperatureUnit): number {
+  return unit === 'F' ? weather.temperatureF : weather.temperatureC
+}
+
+function getFeelsLike(weather: CurrentWeather, unit: TemperatureUnit): number {
+  return unit === 'F' ? weather.feelsLikeF : weather.feelsLikeC
 }
 </script>
 
@@ -44,10 +54,10 @@ function formatDate(isoString: string): string {
     <div class="grid grid-cols-2 gap-6 mb-6">
       <div>
         <p class="text-5xl font-bold text-gray-900 mb-1">
-          {{ Math.round(weather.temperature) }}°F
+          {{ Math.round(getTemperature(weather, temperatureUnit)) }}°{{ temperatureUnit }}
         </p>
         <p class="text-lg text-gray-600">
-          Feels like {{ Math.round(weather.feelsLike) }}°F
+          Feels like {{ Math.round(getFeelsLike(weather, temperatureUnit)) }}°{{ temperatureUnit }}
         </p>
       </div>
       <div class="flex items-center">

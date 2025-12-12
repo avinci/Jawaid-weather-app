@@ -25,8 +25,10 @@ describe('useWeather', () => {
   const mockWeatherData = {
     current: {
       location: 'San Francisco, California',
-      temperature: 65,
-      feelsLike: 63,
+      temperatureF: 65,
+      temperatureC: 18,
+      feelsLikeF: 63,
+      feelsLikeC: 17,
       condition: 'Partly cloudy',
       conditionIcon: 'https://example.com/icon.png',
       humidity: 72,
@@ -38,8 +40,10 @@ describe('useWeather', () => {
       {
         date: '2025-12-11',
         dayOfWeek: 'Wednesday',
-        highTemp: 68,
-        lowTemp: 55,
+        highTempF: 68,
+        lowTempF: 55,
+        highTempC: 20,
+        lowTempC: 13,
         condition: 'Partly cloudy',
         conditionIcon: 'https://example.com/icon.png',
         precipitationChance: 20,
@@ -50,7 +54,8 @@ describe('useWeather', () => {
       {
         time: '2025-12-11 15:00',
         timeDisplay: '3:00 PM',
-        temperature: 65,
+        temperatureF: 65,
+        temperatureC: 18,
         condition: 'Partly cloudy',
         conditionIcon: 'https://example.com/icon.png',
         precipitationChance: 15
@@ -199,6 +204,56 @@ describe('useWeather', () => {
     expect(result!.temperatureUnit.value).toBe('C')
     result!.toggleTemperatureUnit()
     expect(result!.temperatureUnit.value).toBe('F')
+  })
+
+  it('toggles temperature unit in less than 100ms', async () => {
+    let result: ReturnType<typeof useWeather>
+    mountComposable(() => {
+      result = useWeather()
+      return result
+    })
+    
+    await vi.waitFor(() => expect(result!.isLoading.value).toBe(false), { timeout: 1000 })
+    
+    const startTime = performance.now()
+    result!.toggleTemperatureUnit()
+    const endTime = performance.now()
+    const duration = endTime - startTime
+    
+    expect(duration).toBeLessThan(100)
+    expect(result!.temperatureUnit.value).toBe('C')
+  })
+
+  it('defaults to Fahrenheit on initialization', () => {
+    let result: ReturnType<typeof useWeather>
+    mountComposable(() => {
+      result = useWeather()
+      return result
+    })
+    
+    expect(result!.temperatureUnit.value).toBe('F')
+  })
+
+  it('does not persist temperature unit between sessions', () => {
+    // First instance
+    let result1: ReturnType<typeof useWeather>
+    mountComposable(() => {
+      result1 = useWeather()
+      return result1
+    })
+    
+    result1!.toggleTemperatureUnit()
+    expect(result1!.temperatureUnit.value).toBe('C')
+    
+    // New instance (simulating page refresh)
+    let result2: ReturnType<typeof useWeather>
+    mountComposable(() => {
+      result2 = useWeather()
+      return result2
+    })
+    
+    // Should be back to default F
+    expect(result2!.temperatureUnit.value).toBe('F')
   })
 
   it('searchLocation calls loadWeather with query', async () => {

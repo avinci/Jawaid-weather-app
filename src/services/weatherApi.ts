@@ -11,8 +11,10 @@ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 
 export interface CurrentWeather {
   location: string
-  temperature: number
-  feelsLike: number
+  temperatureF: number
+  temperatureC: number
+  feelsLikeF: number
+  feelsLikeC: number
   condition: string
   conditionIcon: string
   humidity: number
@@ -24,8 +26,10 @@ export interface CurrentWeather {
 export interface DailyForecast {
   date: string
   dayOfWeek: string
-  highTemp: number
-  lowTemp: number
+  highTempF: number
+  lowTempF: number
+  highTempC: number
+  lowTempC: number
   condition: string
   conditionIcon: string
   precipitationChance: number
@@ -35,7 +39,8 @@ export interface DailyForecast {
 export interface HourlyForecast {
   time: string
   timeDisplay: string
-  temperature: number
+  temperatureF: number
+  temperatureC: number
   condition: string
   conditionIcon: string
   precipitationChance: number
@@ -119,8 +124,10 @@ export async function fetchWeatherByLocation(query: string): Promise<WeatherData
 function parseWeatherData(data: any): WeatherData {
   const current: CurrentWeather = {
     location: `${data.location.name}, ${data.location.region || data.location.country}`,
-    temperature: data.current.temp_f,
-    feelsLike: data.current.feelslike_f,
+    temperatureF: data.current.temp_f,
+    temperatureC: data.current.temp_c,
+    feelsLikeF: data.current.feelslike_f,
+    feelsLikeC: data.current.feelslike_c,
     condition: data.current.condition.text,
     conditionIcon: `https:${data.current.condition.icon}`,
     humidity: data.current.humidity,
@@ -132,8 +139,10 @@ function parseWeatherData(data: any): WeatherData {
   const daily: DailyForecast[] = data.forecast.forecastday.map((day: any) => ({
     date: day.date,
     dayOfWeek: new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' }),
-    highTemp: day.day.maxtemp_f,
-    lowTemp: day.day.mintemp_f,
+    highTempF: day.day.maxtemp_f,
+    lowTempF: day.day.mintemp_f,
+    highTempC: day.day.maxtemp_c,
+    lowTempC: day.day.mintemp_c,
     condition: day.day.condition.text,
     conditionIcon: `https:${day.day.condition.icon}`,
     precipitationChance: day.day.daily_chance_of_rain,
@@ -155,7 +164,8 @@ function parseWeatherData(data: any): WeatherData {
       return {
         time: hour.time,
         timeDisplay: formatTime(hour.time),
-        temperature: hour.temp_f,
+        temperatureF: hour.temp_f,
+        temperatureC: hour.temp_c,
         condition: hour.condition.text,
         conditionIcon: `https:${hour.condition.icon}`,
         precipitationChance: hour.chance_of_rain
