@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import type { HourlyForecast } from '../services/weatherApi'
+import type { TemperatureUnit } from '../composables/useWeather'
 
 defineProps<{
   forecasts: HourlyForecast[]
+  temperatureUnit: TemperatureUnit
 }>()
+
+function getTemperature(hour: HourlyForecast, unit: TemperatureUnit): number {
+  return unit === 'F' ? hour.temperatureF : hour.temperatureC
+}
 </script>
 
 <template>
@@ -30,7 +36,7 @@ defineProps<{
           />
           
           <p class="text-lg font-bold text-gray-900 mb-2">
-            {{ Math.round(hour.temperature) }}°
+            {{ Math.round(getTemperature(hour, temperatureUnit)) }}°
           </p>
           
           <p class="text-xs text-gray-600 mb-2 min-h-[2rem] flex items-center justify-center">

@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import type { DailyForecast } from '../services/weatherApi'
+import type { TemperatureUnit } from '../composables/useWeather'
 import { formatDate } from '../utils/formatters'
 
 defineProps<{
   forecasts: DailyForecast[]
+  temperatureUnit: TemperatureUnit
 }>()
+
+function getHighTemp(day: DailyForecast, unit: TemperatureUnit): number {
+  return unit === 'F' ? day.highTempF : day.highTempC
+}
+
+function getLowTemp(day: DailyForecast, unit: TemperatureUnit): number {
+  return unit === 'F' ? day.lowTempF : day.lowTempC
+}
 </script>
 
 <template>
@@ -34,9 +44,9 @@ defineProps<{
         </p>
         
         <div class="flex items-center justify-center gap-2 mb-2">
-          <span class="text-lg font-bold text-gray-900">{{ Math.round(day.highTemp) }}°</span>
+          <span class="text-lg font-bold text-gray-900">{{ Math.round(getHighTemp(day, temperatureUnit)) }}°</span>
           <span class="text-gray-400">/</span>
-          <span class="text-lg text-gray-600">{{ Math.round(day.lowTemp) }}°</span>
+          <span class="text-lg text-gray-600">{{ Math.round(getLowTemp(day, temperatureUnit)) }}°</span>
         </div>
         
         <div class="text-xs text-gray-500 space-y-1">

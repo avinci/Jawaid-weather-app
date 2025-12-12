@@ -8,8 +8,9 @@ import ErrorMessage from './components/ErrorMessage.vue'
 import CurrentWeather from './components/CurrentWeather.vue'
 import SevenDayForecast from './components/SevenDayForecast.vue'
 import HourlyForecast from './components/HourlyForecast.vue'
+import TemperatureToggle from './components/TemperatureToggle.vue'
 
-const { weatherData, isLoading, error, clearError, searchLocation } = useWeather()
+const { weatherData, isLoading, error, temperatureUnit, clearError, searchLocation, toggleTemperatureUnit } = useWeather()
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null)
 
 /**
@@ -44,7 +45,13 @@ async function handleSearch(query: string) {
   <div class="min-h-screen bg-gray-50">
     <header class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold text-gray-900">Weather Forecast</h1>
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-gray-900">Weather Forecast</h1>
+          <TemperatureToggle 
+            :current-unit="temperatureUnit"
+            @toggle="toggleTemperatureUnit"
+          />
+        </div>
       </div>
     </header>
 
@@ -71,13 +78,22 @@ async function handleSearch(query: string) {
       <!-- Weather Content -->
       <template v-else-if="weatherData">
         <!-- Current Weather -->
-        <CurrentWeather :weather="weatherData.current" />
+        <CurrentWeather 
+          :weather="weatherData.current" 
+          :temperature-unit="temperatureUnit"
+        />
 
         <!-- 7-Day Forecast -->
-        <SevenDayForecast :forecasts="weatherData.daily" />
+        <SevenDayForecast 
+          :forecasts="weatherData.daily"
+          :temperature-unit="temperatureUnit"
+        />
 
         <!-- 24-Hour Forecast -->
-        <HourlyForecast :forecasts="weatherData.hourly" />
+        <HourlyForecast 
+          :forecasts="weatherData.hourly"
+          :temperature-unit="temperatureUnit"
+        />
       </template>
     </main>
   </div>
