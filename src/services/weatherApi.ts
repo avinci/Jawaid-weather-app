@@ -64,14 +64,21 @@ export async function fetchWeatherByLocation(query: string): Promise<WeatherData
     const response = await fetch(url)
     
     if (!response.ok) {
+      // EC-001: Location not found
       if (response.status === 400) {
-        throw new Error('Location not found. Please check your input and try again.')
-      } else if (response.status === 401) {
+        throw new Error('Location not found. Please check your spelling and try again.')
+      } 
+      // API authentication errors
+      else if (response.status === 401) {
         throw new Error('Invalid API key.')
-      } else if (response.status === 403) {
-        throw new Error('API key has exceeded the rate limit.')
-      } else {
-        throw new Error(`Weather service error: ${response.statusText}`)
+      } 
+      // EC-006: Rate limit exceeded
+      else if (response.status === 403) {
+        throw new Error('Service temporarily unavailable. Please try again in a few minutes.')
+      } 
+      // EC-002: API service error
+      else {
+        throw new Error('Unable to fetch weather data. Please try again later.')
       }
     }
     
@@ -80,12 +87,18 @@ export async function fetchWeatherByLocation(query: string): Promise<WeatherData
     return parseWeatherData(data)
   } catch (error) {
     if (error instanceof Error) {
+      // Re-throw if already a user-friendly error message
       if (error.message.includes('Location not found') || 
           error.message.includes('API key') || 
-          error.message.includes('rate limit')) {
+          error.message.includes('temporarily unavailable') ||
+          error.message.includes('Unable to fetch weather data')) {
         throw error
       }
-      throw new Error('Unable to connect to weather service. Please check your internet connection.')
+      // EC-004: Network connection error
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        throw new Error('Connection lost. Please check your internet and try again.')
+      }
+      throw new Error('Unable to fetch weather data. Please try again later.')
     }
     throw new Error('An unexpected error occurred while fetching weather data.')
   }

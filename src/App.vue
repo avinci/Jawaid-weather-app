@@ -1,12 +1,42 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useWeather } from './composables/useWeather'
+import SearchBar from './components/SearchBar.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
 import ErrorMessage from './components/ErrorMessage.vue'
 import CurrentWeather from './components/CurrentWeather.vue'
 import SevenDayForecast from './components/SevenDayForecast.vue'
 import HourlyForecast from './components/HourlyForecast.vue'
 
-const { weatherData, isLoading, error, clearError } = useWeather()
+const { weatherData, isLoading, error, clearError, searchLocation } = useWeather()
+const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null)
+
+/**
+ * Handle search from SearchBar component
+ * @param query - Location search query
+ */
+async function handleSearch(query: string) {
+  if (import.meta.env.DEV) {
+    console.debug(`[App] Handling search for: ${query}`)
+  }
+  
+  // Clear SearchBar error and set searching state
+  if (searchBarRef.value) {
+    searchBarRef.value.clearError()
+    searchBarRef.value.setSearching(true)
+  }
+  
+  // Clear previous weather errors
+  clearError()
+  
+  // Perform search
+  await searchLocation(query)
+  
+  // Reset searching state
+  if (searchBarRef.value) {
+    searchBarRef.value.setSearching(false)
+  }
+}
 </script>
 
 <template>
@@ -18,6 +48,12 @@ const { weatherData, isLoading, error, clearError } = useWeather()
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <!-- Search Bar -->
+      <SearchBar 
+        ref="searchBarRef"
+        @search="handleSearch"
+      />
+
       <!-- Error Message -->
       <ErrorMessage 
         v-if="error"

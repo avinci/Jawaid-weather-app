@@ -154,7 +154,7 @@ describe('weatherApi', () => {
       })
 
       await expect(fetchWeatherByLocation('San Francisco')).rejects.toThrow(
-        'rate limit'
+        'Service temporarily unavailable'
       )
     })
 
@@ -162,7 +162,7 @@ describe('weatherApi', () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 
       await expect(fetchWeatherByLocation('San Francisco')).rejects.toThrow(
-        'Unable to connect to weather service'
+        'Unable to fetch weather data'
       )
     })
 

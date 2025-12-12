@@ -66,11 +66,40 @@ export function useWeather() {
    * @param query - Location search query
    */
   async function searchLocation(query: string): Promise<void> {
-    // TODO: Implement in Phase 3
     if (import.meta.env.DEV) {
       console.debug(`[useWeather] Searching location: ${query}`)
     }
-    await loadWeather(query)
+    
+    // Clear previous errors before new search
+    error.value = null
+    isLoading.value = true
+    
+    try {
+      const data = await fetchWeatherByLocation(query)
+      weatherData.value = data
+      currentLocation.value = data.current.location
+      
+      if (import.meta.env.DEV) {
+        console.debug(`[useWeather] Search successful for: ${data.current.location}`)
+      }
+    } catch (err) {
+      // Map errors to user-friendly messages
+      let errorMessage: string
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else {
+        errorMessage = 'An unexpected error occurred while searching for weather data.'
+      }
+      
+      error.value = errorMessage
+      
+      if (import.meta.env.DEV) {
+        console.error(`[useWeather] Search error:`, err)
+      }
+    } finally {
+      isLoading.value = false
+    }
   }
 
   /**
