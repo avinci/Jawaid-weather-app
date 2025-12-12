@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useWeather } from './composables/useWeather'
+import { logger } from './utils/logger'
 import SearchBar from './components/SearchBar.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
 import ErrorMessage from './components/ErrorMessage.vue'
@@ -16,9 +17,7 @@ const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null)
  * @param query - Location search query
  */
 async function handleSearch(query: string) {
-  if (import.meta.env.DEV) {
-    console.debug(`[App] Handling search for: ${query}`)
-  }
+  logger.debug(`[App] Handling search for: ${query}`)
   
   // Clear SearchBar error and set searching state
   if (searchBarRef.value) {
@@ -29,12 +28,14 @@ async function handleSearch(query: string) {
   // Clear previous weather errors
   clearError()
   
-  // Perform search
-  await searchLocation(query)
-  
-  // Reset searching state
-  if (searchBarRef.value) {
-    searchBarRef.value.setSearching(false)
+  try {
+    // Perform search
+    await searchLocation(query)
+  } finally {
+    // Always reset searching state, even on error
+    if (searchBarRef.value) {
+      searchBarRef.value.setSearching(false)
+    }
   }
 }
 </script>

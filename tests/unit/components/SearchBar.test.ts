@@ -74,6 +74,7 @@ describe('SearchBar', () => {
       await wrapper.find('form').trigger('submit')
       
       expect(wrapper.emitted('search')?.[0]).toEqual(['Tokyo'])
+      expect(consoleSpy).toHaveBeenCalledWith('[SearchBar] Searching for: Tokyo')
       consoleSpy.mockRestore()
     })
   })

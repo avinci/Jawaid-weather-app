@@ -3,6 +3,8 @@
  * Handles all interactions with WeatherAPI.com
  */
 
+import { logger } from '../utils/logger'
+
 const API_BASE_URL = 'https://api.weatherapi.com/v1'
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 
@@ -54,13 +56,13 @@ export async function fetchWeatherByLocation(query: string): Promise<WeatherData
     throw new Error('Weather API key is not configured')
   }
   
-  if (import.meta.env.DEV) {
-    console.debug(`[weatherApi] Fetching weather for: ${query}`)
-  }
+  logger.debug(`[weatherApi] Fetching weather for: ${query}`)
   
   const url = `${API_BASE_URL}/forecast.json?key=${API_KEY}&q=${encodeURIComponent(query)}&days=7&aqi=no`
   
   try {
+    // EC-003: Ambiguous locations - API returns first match with full location name
+    // Example: "Springfield" returns "Springfield, Illinois, United States"
     const response = await fetch(url)
     
     if (!response.ok) {
@@ -95,7 +97,11 @@ export async function fetchWeatherByLocation(query: string): Promise<WeatherData
         throw error
       }
       // EC-004: Network connection error
-      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      // Check for various network-related error patterns across different browsers
+      if (error.name === 'TypeError' || 
+          error.message.toLowerCase().includes('network') || 
+          error.message.toLowerCase().includes('fetch') ||
+          error.message.toLowerCase().includes('failed to fetch')) {
         throw new Error('Connection lost. Please check your internet and try again.')
       }
       throw new Error('Unable to fetch weather data. Please try again later.')

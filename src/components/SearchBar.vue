@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { logger } from '../utils/logger'
 
 const emit = defineEmits<{
   search: [query: string]
@@ -23,15 +24,16 @@ function handleSubmit() {
   }
   
   // Emit search event
-  if (import.meta.env.DEV) {
-    console.debug(`[SearchBar] Searching for: ${query.value}`)
-  }
+  logger.debug(`[SearchBar] Searching for: ${query.value}`)
   
   emit('search', query.value.trim())
 }
 
 /**
- * Expose isSearching state for parent to control
+ * Public API exposed for parent component control
+ * 
+ * @method setSearching - Control the loading state of the search button
+ * @method clearError - Clear any client-side validation errors
  */
 defineExpose({
   setSearching: (searching: boolean) => {
