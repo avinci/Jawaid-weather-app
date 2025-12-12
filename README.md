@@ -149,6 +149,18 @@ npm run preview
 | `npm test -- --watch` | Run tests in watch mode for development |
 | `npm test -- --coverage` | Run tests with coverage report |
 
+### Test Types
+
+This project uses comprehensive testing strategies:
+
+- **Unit Tests**: Isolated component/function tests with full mocking
+  - Fast and deterministic
+  - Located in `tests/unit/`
+  - Comprehensive coverage of all code paths
+  - Run with: `npm test`
+
+**Note**: Previous "BVT (Build Verification Tests)" were integration-level tests that have been removed in favor of comprehensive unit tests with proper mocking.
+
 ### Test Coverage
 
 Current test coverage: **112 tests, all passing**
