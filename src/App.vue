@@ -83,15 +83,15 @@ async function handleSearch(query: string) {
           :temperature-unit="temperatureUnit"
         />
 
-        <!-- 7-Day Forecast -->
-        <SevenDayForecast 
-          :forecasts="weatherData.daily"
-          :temperature-unit="temperatureUnit"
-        />
-
         <!-- 24-Hour Forecast -->
         <HourlyForecast 
           :forecasts="weatherData.hourly"
+          :temperature-unit="temperatureUnit"
+        />
+
+        <!-- 7-Day Forecast -->
+        <SevenDayForecast 
+          :forecasts="weatherData.daily"
           :temperature-unit="temperatureUnit"
         />
       </template>

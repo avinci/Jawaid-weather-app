@@ -52,6 +52,50 @@ export interface WeatherData {
   hourly: HourlyForecast[]
 }
 
+export interface LocationSuggestion {
+  id: number
+  name: string
+  region: string
+  country: string
+  lat: number
+  lon: number
+  url: string
+}
+
+/**
+ * Search for location suggestions
+ * @param query - Search query (partial city name, zipcode, or region)
+ * @returns Array of location suggestions
+ */
+export async function searchLocations(query: string): Promise<LocationSuggestion[]> {
+  if (!API_KEY) {
+    throw new Error('Weather API key is not configured')
+  }
+  
+  logger.debug(`[weatherApi] Searching locations for: ${query}`)
+  
+  const url = `${API_BASE_URL}/search.json?key=${API_KEY}&q=${encodeURIComponent(query)}`
+  
+  try {
+    const response = await fetch(url)
+    
+    if (!response.ok) {
+      // API errors - return empty array for failed searches
+      logger.debug(`[weatherApi] Search failed with status: ${response.status}`)
+      return []
+    }
+    
+    const data = await response.json()
+    
+    // API returns array of location objects
+    return data as LocationSuggestion[]
+  } catch (error) {
+    // Network errors - return empty array
+    logger.debug(`[weatherApi] Search error: ${error}`)
+    return []
+  }
+}
+
 /**
  * Fetch weather data for a given location
  * @param query - Location query (city name, zipcode, or region)

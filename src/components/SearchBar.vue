@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { logger } from '../utils/logger'
+import { debounce } from '../utils/debounce'
+import { searchLocations, type LocationSuggestion } from '../services/weatherApi'
+import SearchDropdown from './SearchDropdown.vue'
 
 const emit = defineEmits<{
   search: [query: string]
@@ -9,6 +12,12 @@ const emit = defineEmits<{
 const query = ref('')
 const errorMessage = ref('')
 const isSearching = ref(false)
+const suggestions = ref<LocationSuggestion[]>([])
+const isLoadingSuggestions = ref(false)
+const showDropdown = ref(false)
+const selectedIndex = ref(-1)
+const dropdownRef = ref<HTMLDivElement | null>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
 
 /**
  * Handle search form submission
@@ -26,8 +35,141 @@ function handleSubmit() {
   // Emit search event
   logger.debug(`[SearchBar] Searching for: ${query.value}`)
   
+  // Hide dropdown on submit
+  showDropdown.value = false
+  suggestions.value = []
+  
   emit('search', query.value.trim())
 }
+
+/**
+ * Fetch location suggestions
+ */
+async function fetchSuggestions(searchQuery: string) {
+  if (searchQuery.length < 2) {
+    suggestions.value = []
+    showDropdown.value = false
+    return
+  }
+  
+  isLoadingSuggestions.value = true
+  showDropdown.value = true
+  
+  try {
+    const results = await searchLocations(searchQuery)
+    suggestions.value = results
+    selectedIndex.value = -1
+  } catch (error) {
+    logger.debug(`[SearchBar] Error fetching suggestions: ${error}`)
+    suggestions.value = []
+  } finally {
+    isLoadingSuggestions.value = false
+  }
+}
+
+/**
+ * Debounced search handler
+ */
+const debouncedSearch = debounce(fetchSuggestions, 400)
+
+/**
+ * Handle input change
+ */
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  query.value = target.value
+  
+  // Clear error on input
+  errorMessage.value = ''
+  
+  // Trigger debounced search
+  debouncedSearch(target.value)
+}
+
+/**
+ * Handle suggestion selection
+ */
+function handleSuggestionSelect(suggestion: LocationSuggestion) {
+  // Format location for search
+  const locationQuery = `${suggestion.name}, ${suggestion.region || suggestion.country}`
+  query.value = locationQuery
+  
+  // Hide dropdown
+  showDropdown.value = false
+  suggestions.value = []
+  
+  // Emit search
+  logger.debug(`[SearchBar] Selected location: ${locationQuery}`)
+  emit('search', locationQuery)
+}
+
+/**
+ * Handle keyboard navigation
+ */
+function handleKeydown(event: KeyboardEvent) {
+  if (!showDropdown.value || suggestions.value.length === 0) {
+    return
+  }
+  
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      selectedIndex.value = Math.min(selectedIndex.value + 1, suggestions.value.length - 1)
+      break
+      
+    case 'ArrowUp':
+      event.preventDefault()
+      selectedIndex.value = Math.max(selectedIndex.value - 1, -1)
+      break
+      
+    case 'Enter':
+      event.preventDefault()
+      if (selectedIndex.value >= 0 && selectedIndex.value < suggestions.value.length) {
+        handleSuggestionSelect(suggestions.value[selectedIndex.value])
+      } else {
+        handleSubmit()
+      }
+      break
+      
+    case 'Escape':
+      event.preventDefault()
+      showDropdown.value = false
+      suggestions.value = []
+      selectedIndex.value = -1
+      break
+  }
+}
+
+/**
+ * Handle suggestion hover
+ */
+function handleSuggestionHover(index: number) {
+  selectedIndex.value = index
+}
+
+/**
+ * Handle click outside to close dropdown
+ */
+function handleClickOutside(event: MouseEvent) {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    showDropdown.value = false
+    suggestions.value = []
+  }
+}
+
+/**
+ * Setup click-outside listener
+ */
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+/**
+ * Cleanup click-outside listener
+ */
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 /**
  * Public API exposed for parent component control
@@ -46,19 +188,25 @@ defineExpose({
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-4">
+  <div ref="dropdownRef" class="bg-white rounded-lg shadow-sm p-4">
     <form @submit.prevent="handleSubmit" class="flex gap-2">
-      <div class="flex-1">
+      <div class="flex-1 relative">
         <label for="location-search" class="sr-only">Search location</label>
         <input
           id="location-search"
-          v-model="query"
+          ref="inputRef"
+          :value="query"
           type="text"
           placeholder="Enter city, zipcode, or region"
           :disabled="isSearching"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
           aria-describedby="search-error"
           :aria-invalid="errorMessage ? 'true' : 'false'"
+          aria-autocomplete="list"
+          :aria-expanded="showDropdown"
+          aria-controls="search-dropdown"
+          @input="handleInput"
+          @keydown="handleKeydown"
         />
         <p 
           v-if="errorMessage" 
@@ -68,6 +216,16 @@ defineExpose({
         >
           {{ errorMessage }}
         </p>
+        
+        <!-- Dropdown -->
+        <SearchDropdown
+          id="search-dropdown"
+          :suggestions="suggestions"
+          :is-loading="isLoadingSuggestions"
+          :selected-index="selectedIndex"
+          @select="handleSuggestionSelect"
+          @hover="handleSuggestionHover"
+        />
       </div>
       <button
         type="submit"
